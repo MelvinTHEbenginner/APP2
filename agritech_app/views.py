@@ -24,13 +24,7 @@ def is_admin(user):
     """Vérifie si l'utilisateur est un administrateur (staff Django)"""
     return user.is_authenticated and user.is_staff
 
-# Modification 2: Remplacer les décorateurs existants dans les vues administratives
-# Au lieu de:
-# @user_passes_test(lambda u: u.is_staff)
-# Utilisez:
-# @user_passes_test(is_admin)
 
-# Modification 3: Améliorer la vérification des rôles utilisateur
 def is_confirmed_vendeur(user):
     """Vérifie si l'utilisateur est un vendeur confirmé"""
     if user.is_authenticated and hasattr(user, 'profile'):
@@ -57,7 +51,7 @@ def home(request):
         'query': query,
     }
     
-    # Ajoutez le comptage pour les admins
+    # Si l'utilisateur est authentifié et est un administrateur, afficher le nombre de vendeurs à confirmer
     if request.user.is_authenticated and request.user.is_staff:
         context['nb_vendeurs_a_confirmer'] = Profile.objects.filter(
             role='vendeur',
@@ -82,12 +76,12 @@ def signup(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            # S'assurer que l'utilisateur n'est pas automatiquement staff ou admin
+            
             user.is_staff = False
             user.is_superuser = False
             user.save()
             
-            # Créer le profil avec le rôle sélectionné
+            # pour creer mon putain de profile
             role = form.cleaned_data.get('role', 'acheteur')
             Profile.objects.create(
                 user=user, 
@@ -112,7 +106,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('home')  # Redirection explicite
+            return redirect('home')  
     else:
         form = AuthenticationForm()
     return render(request, 'agritech_app/login.html', {'form': form})
@@ -120,7 +114,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     messages.success(request, "Vous avez été déconnecté avec succès.")
-    return redirect('home')  # Redirige vers la page d'accueil
+    return redirect('home')  
 
 @login_required
 def profile(request):
@@ -144,7 +138,7 @@ def profile(request):
     context = {'user_form': user_form, 'profile_form': profile_form}
     return render(request, 'profile.html', context)
 
-# Vérification si l'utilisateur est un vendeur confirmé
+
 def is_confirmed_vendeur(user):
     if user.is_authenticated and hasattr(user, 'profile'):
         return user.profile.role == 'vendeur' and user.profile.is_vendeur_confirmed
@@ -152,7 +146,7 @@ def is_confirmed_vendeur(user):
 
 @login_required
 def ajouter_produit(request):
-    # Autoriser admin ET vendeurs confirmés
+    # possible tu le maitre ou vendeur 
     if not (request.user.is_staff or 
             (hasattr(request.user, 'profile') and 
              request.user.profile.role == 'vendeur' and 
@@ -185,7 +179,7 @@ def passer_commande(request, produit_id):
         frais_livraison = 1500 if livraison == 'domicile' else 0
         total = (produit.prix * quantite) + frais_livraison
         
-        # Création de la commande
+        # Création de la comma
         commande = Commande.objects.create(
             acheteur=request.user,
             total=total
@@ -242,8 +236,8 @@ def ajouter_avis(request, produit_id):
             messages.success(request, "Votre avis a été ajouté avec succès.")
             return redirect('detail_produit', produit_id=produit_id)
     else:
-        form = AvisForm()  # Initialisation du formulaire pour les requêtes GET
-    # Vérification si l'utilisateur a déjà laissé un avis
+        form = AvisForm()  
+    
     context = {'form': form, 'produit': produit}
     return render(request, 'ajouter_avis.html', context)
 
@@ -259,7 +253,7 @@ def initier_paiement_mobile(request, commande_id):
     if request.method == 'POST':
         numero_telephone = request.POST.get('numero_telephone')
         montant = commande.lignedecommande_set.aggregate(total=Sum('prix_unitaire'))['total']
-        # *** LOGIQUE D'INTÉGRATION DE L'API DE PAIEMENT MOBILE ICI ***
+        # TCHAI PAS FINI HEIN 
         commande.transaction_id = f"TEMP_TRANS_{commande.id}"
         commande.save()
         return redirect('verifier_paiement_mobile', commande_id=commande_id)
@@ -270,7 +264,7 @@ def initier_paiement_mobile(request, commande_id):
 def verifier_paiement_mobile(request, commande_id):
     commande = get_object_or_404(Commande, pk=commande_id, acheteur=request.user)
     transaction_id = commande.transaction_id
-    # *** LOGIQUE DE VÉRIFICATION DU STATUT DU PAIEMENT MOBILE ICI ***
+    # BAIDAI
     commande.est_livree = True
     commande.save()
     return redirect('paiement_reussi', commande_id=commande_id)
@@ -297,12 +291,12 @@ def liste_vendeurs_a_confirmer(request):
     
     context = {
         'vendeurs': vendeurs,
-        'now': timezone.now()  # Utilisation correcte
+        'now': timezone.now() 
     }
     return render(request, 'admin/liste_vendeurs_a_confirmer.html', context)
 
 @login_required
-@user_passes_test(is_admin)  # Utiliser la nouvelle fonction is_admin
+@user_passes_test(is_admin)  
 def confirmer_vendeur(request, user_id):
     try:
         profile = Profile.objects.get(user_id=user_id, role='vendeur')
@@ -317,8 +311,8 @@ def confirmer_vendeur(request, user_id):
 @user_passes_test(is_acheteur)
 def contacter_vendeur(request, vendeur_id):
     vendeur = get_object_or_404(User, id=vendeur_id)
-    # Récupérer le produit depuis la session ou autre méthode
-    produit_id = request.session.get('current_product_id')  # À adapter
+    
+    produit_id = request.session.get('current_product_id')  
     produit = get_object_or_404(Produit, id=produit_id) if produit_id else None
     
     if not hasattr(vendeur, 'profile') or not vendeur.profile.accepte_contact:
@@ -328,7 +322,7 @@ def contacter_vendeur(request, vendeur_id):
     if request.method == 'POST':
         form = ContactVendeurForm(request.POST)
         if form.is_valid():
-            # Envoyer l'email ou enregistrer le message
+            # Préparer l'email
             sujet = f"Contact depuis AgriTech: {form.cleaned_data['sujet']}"
             message = f"""
             De: {request.user.email}
@@ -337,7 +331,7 @@ def contacter_vendeur(request, vendeur_id):
             {form.cleaned_data['message']}
             """
             
-            # Envoyer l'email (à configurer avec vos paramètres SMTP)
+            # Envoyer l'email (à configurer avec vos paramètres SMTP) PAS FINI
             send_mail(
                 sujet,
                 message,
@@ -368,6 +362,6 @@ def liste_vendeurs_a_confirmer(request):
     
     context = {
         'vendeurs': vendeurs,
-        'now': timezone.now()  # Pour afficher la date actuelle
+        'now': timezone.now()  
     }
     return render(request, 'admin/liste_vendeurs_a_confirmer.html', context)
