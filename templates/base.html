@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriTech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* Couleurs inspirées de la Côte d'Ivoire et de l'agriculture */
+        :root {
+            --couleur-primaire: #008C45; /* Vert forêt, évoque l'agriculture */
+            --couleur-secondaire: #F7B931; /* Jaune soleil, richesse et optimisme */
+            --couleur-tertiaire: #E4572E; /* Terre cuite, sol fertile */
+            --couleur-clair: #F9F9F9; /* Blanc cassé, pureté et fraîcheur */
+            --couleur-texte-principal: #333; /* Gris foncé, lisibilité */
+            --couleur-texte-secondaire: #777; /* Gris clair, informations secondaires */
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--couleur-clair);
+            color: var(--couleur-texte-principal);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .bg-gradient-vert-jaune {
+            background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
+        }
+        
+        .bg-gradient-jaune-terre {
+            background: linear-gradient(to right, var(--couleur-secondaire), var(--couleur-tertiaire));
+        }
+        
+        .bg-gradient-clair-vert {
+            background: linear-gradient(to bottom, var(--couleur-clair), rgba(0, 140, 69, 0.1));
+        }
+        
+        .text-primaire {
+            color: var(--couleur-primaire);
+        }
+        
+        .text-secondaire {
+            color: var(--couleur-secondaire);
+        }
+        
+        .text-tertiaire {
+            color: var(--couleur-tertiaire);
+        }
+        
+        .bg-primaire {
+            background-color: var(--couleur-primaire);
+        }
+        
+        .bg-secondaire {
+            background-color: var(--couleur-secondaire);
+        }
+        
+        .bg-tertiaire {
+            background-color: var(--couleur-tertiaire);
+        }
+        
+        .border-primaire {
+            border-color: var(--couleur-primaire);
+        }
+        
+        .hover\:text-secondaire:hover {
+            color: var(--couleur-secondaire);
+        }
+        
+        .hover\:bg-primaire-dark:hover {
+            background: linear-gradient(to right, #006b37, #d49a25);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="bg-gradient-vert-jaune shadow-md py-4">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'home' %}" class="text-white text-xl font-bold">AgriTech</a>
+                <button class="md:hidden text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                {% if user.is_authenticated and user.is_staff %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'liste_vendeurs_a_confirmer' %}">
+            <i class="fas fa-user-check"></i> Vendeurs à confirmer
+            {% if nb_vendeurs_a_confirmer > 0 %}
+                <span class="badge badge-danger">{{ nb_vendeurs_a_confirmer }}</span>
+            {% endif %}
+        </a>
+    </li>
+{% endif %}
+                <div class="hidden md:flex space-x-4">
+                    <a href="{% url 'home' %}" class="text-white hover:text-secondaire transition">Accueil</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}" class="text-white hover:text-secondaire transition">Mon Profil</a>
+                        {% if user.profile.role == 'vendeur' and user.profile.is_vendeur_confirmed or user.is_staff %}
+        <a href="{% url 'ajouter_produit' %}" class="nav-link">Vendre un produit</a>
+    {% endif %}
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-white hover:text-secondaire transition">Se déconnecter</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'signup' %}" class="text-white hover:text-secondaire transition">Inscription</a>
+                        <a href="{% url 'login' %}" class="text-white hover:text-secondaire transition">Connexion</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

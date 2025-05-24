@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-12">
+    <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+        <!-- En-tête avec icône -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">{{ produit.nom }}</h1>
+            <p class="text-xl font-bold text-green-600">{{ produit.prix }} FCFA</p>
+            <p class="text-gray-500">Quantité : 1</p>
+        </div>
+
+        <!-- Formulaire -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Quantité dynamique -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
+                <div class="flex rounded-md shadow-sm">
+                    <button type="button" onclick="decrement()" class="px-4 py-2 bg-gray-200 text-gray-600 rounded-l-md hover:bg-gray-300">
+                        -
+                    </button>
+                    <input type="number" id="quantite" name="quantite" value="1" min="1" 
+                           class="flex-1 block w-full px-4 py-2 text-center border-t border-b border-gray-300">
+                    <button type="button" onclick="increment()" class="px-4 py-2 bg-gray-200 text-gray-600 rounded-r-md hover:bg-gray-300">
+                        +
+                    </button>
+                </div>
+            </div>
+
+            <!-- Livraison dynamique -->
+            <div class="pt-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Options de livraison</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <input id="livraison-domicile" name="livraison" type="radio" value="domicile" checked 
+                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
+                        <label for="livraison-domicile" class="ml-3 block text-sm font-medium text-gray-700">
+                            Livraison à domicile (+1500 FCFA)
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="point-relais" name="livraison" type="radio" value="relais"
+                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
+                        <label for="point-relais" class="ml-3 block text-sm font-medium text-gray-700">
+                            Point relais (Gratuit)
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total dynamique -->
+            <div class="border-t border-gray-200 pt-4">
+                <div class="flex justify-between text-lg font-medium text-gray-900 mb-2">
+                    <span>Total</span>
+                    <span id="total">{{ produit.prix|add:1500 }} FCFA</span>
+                </div>
+                <p class="text-sm text-gray-500 mb-6">Frais de livraison inclus</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex space-x-4">
+                <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold">
+                    Confirmer
+                </button>
+                <a href="{% url 'detail_produit' produit.id %}" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-bold text-center">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function updateTotal() {
+        const quantite = parseInt(document.getElementById('quantite').value);
+        const livraisonDomicile = document.getElementById('livraison-domicile').checked;
+        const prixProduit = "{{ produit.prix }}";
+        const fraisLivraison = livraisonDomicile ? 1500 : 0;
+        const total = (prixProduit * quantite) + fraisLivraison;
+        
+        document.getElementById('total').textContent = total + ' FCFA';
+    }
+
+    function increment() {
+        const input = document.getElementById('quantite');
+        input.value = parseInt(input.value) + 1;
+        updateTotal();
+    }
+
+    function decrement() {
+        const input = document.getElementById('quantite');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+            updateTotal();
+        }
+    }
+
+    // Écouteurs d'événements
+    document.getElementById('quantite').addEventListener('change', updateTotal);
+    document.getElementById('livraison-domicile').addEventListener('change', updateTotal);
+    document.getElementById('point-relais').addEventListener('change', updateTotal);
+</script>
+{% endblock %}

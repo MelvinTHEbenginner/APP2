@@ -1,0 +1,65 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .vendeur-list {
+            margin: 20px 0;
+        }
+        .vendeur-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .vendeur-actions a {
+            margin-left: 10px;
+        }
+        .badge {
+            margin-left: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{% translate "Vendeurs en attente de confirmation" %}</h1>
+    
+    {% if vendeurs %}
+        <div class="vendeur-list">
+            {% for vendeur in vendeurs %}
+                <div class="vendeur-card">
+                    <div class="vendeur-info">
+                        <strong>{{ vendeur.user.username }}</strong>
+                        <span class="text-muted">{{ vendeur.user.email }}</span>
+                        <small>Inscrit le {{ vendeur.user.date_joined|date:"d/m/Y" }}</small>
+                    </div>
+                    <div class="vendeur-actions">
+                        <a href="{% url 'confirmer_vendeur' vendeur.user.id %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-check"></i> {% translate "Confirmer" %}
+                        </a>
+                        <a href="{% url 'admin:auth_user_change' vendeur.user.id %}" class="btn btn-info btn-sm">
+                            <i class="fas fa-edit"></i> {% translate "Modifier" %}
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            {% translate "Aucun vendeur en attente de confirmation." %}
+        </div>
+    {% endif %}
+    
+    <a href="{% url 'admin:index' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> {% translate "Retour à l'administration" %}
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-2xl">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl border border-gray-100">
+            <!-- Progress steps -->
+            <div class="flex justify-between mb-10 relative">
+                <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold mb-2">1</div>
+                    <span class="text-xs font-medium text-gray-500">Informations</span>
+                </div>
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold mb-2">2</div>
+                    <span class="text-xs font-medium text-gray-500">Profil</span>
+                </div>
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold mb-2">3</div>
+                    <span class="text-xs font-medium text-gray-500">Confirmation</span>
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-extrabold text-center text-gray-900 mb-2">{% translate "Commençons l'aventure" %}</h2>
+            <p class="text-center text-gray-500 mb-8">{% translate "Créez votre compte en quelques étapes" %}</p>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for field in form %}
+                    <div class="relative group">
+                        {{ field }}
+                        <label class="absolute left-3 -top-3.5 bg-white px-1 text-gray-600 text-sm transition-all duration-200 group-focus-within:text-green-600 pointer-events-none">
+                            {{ field.label }}
+                        </label>
+                        {% if field.errors %}
+                            <p class="mt-1 text-sm text-red-600 animate-pulse">{{ field.errors|join:", " }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Vendeur fields (toggle) -->
+                <div id="vendeur-fields" class="hidden space-y-6 p-6 bg-gray-50 rounded-xl transition-all duration-500">
+                    <h3 class="text-lg font-bold text-gray-900">{% translate "Informations complémentaires" %}</h3>
+                    <!-- Ajoutez ici les champs spécifiques aux vendeurs -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="relative group">
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder=" " />
+                            <label class="absolute left-3 -top-3.5 bg-gray-50 px-1 text-gray-600 text-sm transition-all duration-200 group-focus-within:text-green-600 pointer-events-none">
+                                {% translate "Nom de l'exploitation" %}
+                            </label>
+                        </div>
+                        <div class="relative group">
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" placeholder=" " />
+                            <label class="absolute left-3 -top-3.5 bg-gray-50 px-1 text-gray-600 text-sm transition-all duration-200 group-focus-within:text-green-600 pointer-events-none">
+                                {% translate "Numéro SIRET" %}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton d'inscription -->
+                <button type="submit" 
+                        class="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                    {% translate "Finaliser l'inscription" %}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline ml-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </form>
+
+            <p class="mt-6 text-center text-gray-600">
+                {% translate "Déjà un compte ?" %} 
+                <a href="{% url 'login' %}" class="text-green-600 hover:text-green-800 font-medium hover:underline">
+                    {% translate "Connectez-vous" %}
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('id_role');
+        const vendeurFields = document.getElementById('vendeur-fields');
+
+        function toggleVendeurFields() {
+            if (roleSelect && roleSelect.value === 'vendeur') {
+                vendeurFields.classList.remove('hidden');
+                vendeurFields.classList.add('animate__animated', 'animate__fadeIn');
+            } else {
+                vendeurFields.classList.add('hidden');
+            }
+        }
+
+        if (roleSelect) {
+            roleSelect.addEventListener('change', toggleVendeurFields);
+            toggleVendeurFields();
+        }
+
+        // Animation des champs
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach((input, index) => {
+            input.style.transitionDelay = `${index * 50}ms`;
+            input.classList.add('transform', '-translate-y-2', 'opacity-0');
+            setTimeout(() => {
+                input.classList.remove('-translate-y-2', 'opacity-0');
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}
+
+<style>
+    input, select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #D1D5DB;
+        border-radius: 0.5rem;
+        transition: all 200ms;
+    }
+    input:focus, select:focus {
+        outline: none;
+        border-color: transparent;
+        box-shadow: 0 0 0 2px #22C55E;
+    }
+    select {
+        appearance: none;
+        background-color: white;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.5rem;
+    }
+</style>
+{% endblock %}

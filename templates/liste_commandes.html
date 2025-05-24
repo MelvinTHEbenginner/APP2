@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-extrabold text-gray-900">Mes Commandes</h1>
+        <a href="{% url 'home' %}" class="text-green-600 hover:text-green-800 font-medium flex items-center">
+            ← Retour à l'accueil
+        </a>
+    </div>
+
+    {% if commandes %}
+        <div class="bg-white shadow overflow-hidden sm:rounded-xl">
+            <ul class="divide-y divide-gray-200">
+                {% for commande in commandes %}
+                    <li class="hover:bg-gray-50 transition-colors">
+                        <a href="{% url 'detail_commande' commande.id %}" class="block">
+                            <div class="px-6 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="min-w-0 flex-1 flex items-center">
+                                            <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg mr-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-lg font-medium text-green-600 truncate">
+                                                    Commande #{{ commande.id }}
+                                                </p>
+                                                <p class="flex items-center text-sm text-gray-500">
+                                                    <span>{{ commande.date_commande|date:"d F Y" }}</span>
+                                                    <span class="mx-2">•</span>
+                                                    <span>{{ commande.lignes_de_commande.count }} article(s)</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4 flex-shrink-0">
+                                        <span class="px-3 py-1 rounded-full text-sm font-medium 
+                                            {% if commande.est_livree %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {% if commande.est_livree %}
+                                                <span class="flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Livrée
+                                                </span>
+                                            {% else %}
+                                                <span class="flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    En cours
+                                                </span>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="text-center py-16 bg-white rounded-xl shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune commande passée</h3>
+            <p class="text-gray-500 mb-6">Vos futures commandes apparaîtront ici</p>
+            <a href="{% url 'home' %}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
+                Découvrir nos produits
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

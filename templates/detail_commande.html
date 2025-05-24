@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold text-primaire mb-6">Détails de la Commande #{{ commande.id }}</h2>
+        
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="font-medium text-gray-700">Date de la commande :</p>
+                        <p>{{ commande.date_commande }}</p>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-700">Statut de la livraison :</p>
+                        <p class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                            {% if commande.est_livree %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if commande.est_livree %}Livrée{% else %}En cours{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-bold text-secondaire mb-4">Produits dans cette commande :</h3>
+        
+        {% if lignes_de_commande %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <ul class="divide-y divide-gray-200">
+                    {% for ligne in lignes_de_commande %}
+                        <li class="px-6 py-4">
+                            <div class="flex justify-between">
+                                <span class="font-medium">{{ ligne.produit.nom }}</span>
+                                <div class="text-right">
+                                    <p>Quantité : {{ ligne.quantite }}</p>
+                                    <p>Prix unitaire : {{ ligne.prix_unitaire }} FCFA</p>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="bg-white p-6 rounded-lg shadow text-center">
+                <p class="text-gray-500">Aucun produit dans cette commande.</p>
+            </div>
+        {% endif %}
+        
+        <div class="mt-6">
+            <a href="{% url 'liste_commandes' %}" 
+               class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+                Retour à mes commandes
+            </a>
+        </div>
+    </div>
+{% endblock %}

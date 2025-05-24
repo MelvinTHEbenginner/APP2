@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPvknHGJwWtJFtMOvXp7SA/vJW1vTuMuBGsScmJKwkqLNuK9bkcnCZTlbKRhcDQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMMejyrg1MkmKBvQiQi9xy3rkV6skoFj4lcgR0D+F5YGaWHQkVG1jWnYXKSKfhHQ+bqyi7VHRW0jxsozj1g==" crossorigin=""></script>
+    <style>
+        #mapid { 
+            height: 500px; 
+            width: 100%;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold text-primaire mb-6">Carte des Producteurs Locaux</h2>
+        <div id="mapid" class="w-full"></div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script>
+        var map = L.map('mapid').setView([6.4133, -3.7903], 10); // Coordonnées de Grand-Bassam et zoom initial
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var producteurs = JSON.parse('{{ producteurs|json_encode|raw }}');
+        producteurs.forEach(function(producteur) {
+            if (producteur.latitude && producteur.longitude && producteur.user.produit_set.length > 0) {
+                var marker = L.marker([producteur.latitude, producteur.longitude]).addTo(map);
+                marker.bindPopup('<b>' + producteur.user.username + '</b>');
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,42 @@
+/* Couleurs principales inspirées de la Côte d'Ivoire */
+:root {
+    --primary-color: #008000; /* Vert forêt */
+    --secondary-color: #FFA500; /* Orange vibrant */
+    --accent-color: #D4AF37; /* Or */
+    --text-color: #333;
+    --background-color: #f8f8f8;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    line-height: 1.6;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: var(--primary-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-primary:hover {
+    background-color: darken(var(--primary-color), 10%) !important;
+    border-color: darken(var(--primary-color), 10%) !important;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: var(--secondary-color);
+}
+
+/* Ajoutez d'autres styles pour les listes, les formulaires, etc. */

@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero de la catégorie -->
+    <div class="relative bg-gradient-to-r from-green-600 to-green-800 rounded-2xl p-8 mb-12 overflow-hidden">
+        <div class="absolute inset-0 bg-noise opacity-20"></div>
+        <div class="relative z-10">
+            <nav class="flex mb-6" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li>
+                        <a href="{% url 'home' %}" class="inline-flex items-center text-sm font-medium text-white hover:text-green-200">
+                            🏠 Accueil
+                        </a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-white md:ml-2">{{ categorie.nom }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            
+            <h1 class="text-4xl font-extrabold text-white mb-4">{{ categorie.nom }}</h1>
+            <p class="text-xl text-green-100 max-w-2xl">
+                {% if categorie.nom == "Fruits" %}
+                    Découvrez nos fruits frais cueillis à maturité
+                {% elif categorie.nom == "Légumes" %}
+                    Des légumes bio cultivés avec passion
+                {% else %}
+                    Produits locaux de qualité exceptionnelle
+                {% endif %}
+            </p>
+        </div>
+        
+        <!-- Éléments décoratifs -->
+        <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-30"></div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="mb-8 p-6 bg-white rounded-xl shadow-sm sticky top-4 z-10">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Trier par</label>
+                <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-lg">
+                    <option>Prix croissant</option>
+                    <option>Prix décroissant</option>
+                    <option>Nouveautés</option>
+                    <option>Meilleures notes</option>
+                </select>
+            </div>
+            
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Filtrer</label>
+                <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-lg">
+                    <option>Tous les produits</option>
+                    <option>Disponibles</option>
+                    <option>Promotions</option>
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Appliquer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grille des produits -->
+    {% if produits %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {% for produit in produits %}
+                <div class="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 hover:-translate-y-1">
+                    <!-- Badge -->
+                    {% if produit.quantite > 10 %}
+                        <span class="absolute top-4 left-4 bg-green-100 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded-full">DISPONIBLE</span>
+                    {% else %}
+                        <span class="absolute top-4 left-4 bg-yellow-100 text-yellow-800 text-xs font-bold px-2.5 py-0.5 rounded-full">LIMITÉ</span>
+                    {% endif %}
+                    
+                    <!-- Image -->
+                    <div class="h-60 overflow-hidden">
+                        {% if produit.photo %}
+                            <img src="{{ produit.photo.url }}" 
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                 alt="{{ produit.nom }}">
+                        {% else %}
+                            <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                                <span class="text-gray-400">Pas d'image</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Contenu -->
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold text-gray-900 truncate">{{ produit.nom }}</h3>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                {{ produit.categorie.nom }}
+                            </span>
+                        </div>
+                        
+                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">
+                            {% if produit.description %}
+                                {{ produit.description }}
+                            {% else %}
+                                Produit local de qualité
+                            {% endif %}
+                        </p>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-green-600">{{ produit.prix }} FCFA</span>
+                            <a href="{% url 'detail_produit' produit.id %}" 
+                               class="text-green-600 hover:text-green-800 font-medium flex items-center">
+                                Voir
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-16 bg-white rounded-xl shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun produit disponible</h3>
+            <p class="text-gray-500 mb-6">Nos producteurs préparent de nouvelles récoltes !</p>
+            <a href="{% url 'home' %}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
+                Retour à l'accueil
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if produits.has_other_pages %}
+        <div class="mt-12 flex justify-center">
+            <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                {% if produits.has_previous %}
+                    <a href="?page={{ produits.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Précédent</span>
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                {% endif %}
+
+                {% for i in produits.paginator.page_range %}
+                    {% if produits.number == i %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-green-500 bg-green-50 text-sm font-medium text-green-600">
+                            {{ i }}
+                        </span>
+                    {% else %}
+                        <a href="?page={{ i }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ i }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if produits.has_next %}
+                    <a href="?page={{ produits.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Suivant</span>
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .bg-noise {
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E");
+    }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
