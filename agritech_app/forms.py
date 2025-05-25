@@ -1,8 +1,4 @@
-"""
-# Corrections pour forms.py
 
-Pour améliorer l'inscription et la gestion des profils utilisateurs, voici les modifications recommandées pour votre fichier forms.py:
-"""
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
