@@ -63,7 +63,7 @@ class LigneDeCommande(models.Model):
     def __str__(self):
         return f"{self.quantite} x {self.produit.nom} dans la commande #{self.commande.id}"
 
-# ... autres imports et modèles ...
+
 
 class Avis(models.Model):
     produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
