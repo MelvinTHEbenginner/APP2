@@ -33,6 +33,7 @@ class Produit(models.Model):
     vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
     categorie = models.ForeignKey(CategorieProduit, on_delete=models.CASCADE)
     nom = models.CharField(max_length=255)
+    
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     quantite = models.PositiveIntegerField()
     photo = models.ImageField(upload_to='produits/', blank=True)

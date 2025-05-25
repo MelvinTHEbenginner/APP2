@@ -101,6 +101,8 @@
                     <a href="{% url 'home' %}" class="text-white hover:text-secondaire transition">Accueil</a>
                     {% if user.is_authenticated %}
                         <a href="{% url 'profile' %}" class="text-white hover:text-secondaire transition">Mon Profil</a>
+                        <a href="{% url 'liste_commandes' %}" class="text-white hover:text-secondaire transition">Mes Commandes</a>
+
                         {% if user.profile.role == 'vendeur' and user.profile.is_vendeur_confirmed or user.is_staff %}
         <a href="{% url 'ajouter_produit' %}" class="nav-link">Vendre un produit</a>
     {% endif %}

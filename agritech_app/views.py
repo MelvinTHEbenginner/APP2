@@ -211,7 +211,9 @@ def passer_commande(request, produit_id):
 
 @login_required
 def liste_commandes(request):
-    commandes = Commande.objects.filter(acheteur=request.user).order_by('-date_commande')
+    commandes = Commande.objects.filter(acheteur=request.user)\
+                               .order_by('-date_commande')\
+                               .prefetch_related('lignedecommande_set__produit')
     context = {'commandes': commandes}
     return render(request, 'liste_commandes.html', context)
 
