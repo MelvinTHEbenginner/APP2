@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Messages</h1>
+        <a href="{% url 'home' %}" class="text-green-600 hover:text-green-800">
+            <i class="fas fa-arrow-left mr-1"></i> Retour à l'accueil
+        </a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        {% if conversations_avec_infos %}
+            {% for conv_info in conversations_avec_infos %}
+                <a href="{% url 'conversation_detail' conv_info.conversation.id %}" 
+                   class="block border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
+                    <div class="p-4 flex items-start">
+                        <div class="flex-shrink-0 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-800 text-xl">
+                            👤
+                        </div>
+                        <div class="ml-4 flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <h3 class="text-lg font-medium text-gray-900 truncate">
+                                    {{ conv_info.autre_participant.username }}
+                                </h3>
+                                <span class="text-sm text-gray-500 whitespace-nowrap ml-2">
+                                    {{ conv_info.conversation.date_modification|timesince }}
+                                </span>
+                            </div>
+                            <p class="text-gray-600 text-sm mt-1 truncate">
+                                {% if conv_info.dernier_message %}
+                                    {% if conv_info.dernier_message.expediteur == request.user %}
+                                        <span class="text-gray-500">Vous: </span>
+                                    {% endif %}
+                                    {{ conv_info.dernier_message.contenu|truncatechars:60 }}
+                                {% else %}
+                                    <span class="text-gray-400">Aucun message</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if conv_info.nb_non_lus > 0 %}
+                            <span class="ml-4 flex-shrink-0 flex items-center justify-center h-6 w-6 rounded-full bg-green-600 text-white text-xs font-medium">
+                                {{ conv_info.nb_non_lus }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+        {% else %}
+            <div class="p-8 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">Aucune conversation</h3>
+                <p class="text-gray-500">Commencez une nouvelle conversation en contactant un vendeur.</p>
+                <div class="mt-6">
+                    <a href="{% url 'home' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Voir les produits
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

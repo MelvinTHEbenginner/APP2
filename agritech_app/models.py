@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Profile(models.Model):
     USER_ROLES = [
@@ -74,5 +75,38 @@ class Avis(models.Model):
     date_creation = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Avis de {self.auteur.username} sur {self.produit.nom}"
+        return f"Avis de {self.auteur.username} sur {self.produit.num}"
+
+class Conversation(models.Model):
+    participants = models.ManyToManyField(User, related_name='conversations')
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-date_modification']
+
+    def __str__(self):
+        return f"Conversation {self.id}"
+
+class Message(models.Model):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    expediteur = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_envoyes')
+    destinataire = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_recus', null=True)
+    contenu = models.TextField()
+    date_envoi = models.DateTimeField(auto_now_add=True)
+    lu = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['date_envoi']
+    
+    def __str__(self):
+        return f"Message de {self.expediteur.username} dans la conversation {self.conversation.id}"
+
+
+def get_unread_messages_count(self):
+    return self.messages_recus.filter(lu=False).count()
+
+
+from django.contrib.auth.models import User as BaseUser
+BaseUser.add_to_class('get_unread_messages_count', get_unread_messages_count)
     

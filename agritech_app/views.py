@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q, Sum
 from django.core import serializers
 from django.contrib import messages
-from .models import Produit, CategorieProduit, Profile, Commande, LigneDeCommande, Avis
+from .models import Produit, CategorieProduit, Profile, Commande, LigneDeCommande, Avis, Conversation, Message
 from .forms import ProduitForm, ProfileForm, AvisForm, CustomUserCreationForm, UserProfileForm # Utilisation du nouveau formulaire d'inscription
 from .utils import envoyer_email_confirmation_commande
 from .decorators import admin_required, vendeur_confirme_required, acheteur_required
@@ -286,16 +286,100 @@ def formulaire_paiement_mobile(request, commande):
 @login_required
 @user_passes_test(is_admin)
 def liste_vendeurs_a_confirmer(request):
-    vendeurs = Profile.objects.filter(
-        role='vendeur', 
-        is_vendeur_confirmed=False
-    ).select_related('user')
+    if not request.user.is_staff:
+        messages.error(request, "Accès refusé. Vous n'avez pas les droits d'administration.")
+        return redirect('home')
     
-    context = {
-        'vendeurs': vendeurs,
-        'now': timezone.now() 
-    }
-    return render(request, 'admin/liste_vendeurs_a_confirmer.html', context)
+    vendeurs_a_confirmer = User.objects.filter(
+        profile__role='vendeur',
+        profile__is_vendeur_confirmed=False
+    ).select_related('profile')
+    
+    nb_vendeurs = vendeurs_a_confirmer.count()
+    
+    return render(request, 'admin/vendeurs_a_confirmer.html', {
+        'vendeurs_a_confirmer': vendeurs_a_confirmer,
+        'nb_vendeurs': nb_vendeurs
+    })
+
+def formation(request):
+    """Vue pour la page de formation"""
+    return render(request, 'formation.html')
+
+@login_required
+def liste_conversations(request):
+    conversations = request.user.conversations.all().order_by('-date_modification')
+    
+    # Ajouter le nombre de messages non lus pour chaque conversation
+    conversations_avec_infos = []
+    for conv in conversations:
+        nb_non_lus = conv.messages.filter(destinataire=request.user, lu=False).count()
+        autre_participant = conv.participants.exclude(id=request.user.id).first()
+        conversations_avec_infos.append({
+            'conversation': conv,
+            'nb_non_lus': nb_non_lus,
+            'autre_participant': autre_participant,
+            'dernier_message': conv.messages.last()
+        })
+    
+    return render(request, 'messagerie/liste_conversations.html', {
+        'conversations_avec_infos': conversations_avec_infos
+    })
+
+@login_required
+def conversation_detail(request, conversation_id):
+    conversation = get_object_or_404(Conversation, id=conversation_id, participants=request.user)
+    
+    if request.method == 'POST':
+        contenu = request.POST.get('contenu')
+        if contenu:
+            # Récupérer l'autre participant comme destinataire
+            destinataire = conversation.participants.exclude(id=request.user.id).first()
+            
+            Message.objects.create(
+                conversation=conversation,
+                expediteur=request.user,
+                destinataire=destinataire,
+                contenu=contenu
+            )
+            # Mettre à jour la date de modification de la conversation
+            conversation.save()
+            return redirect('conversation_detail', conversation_id=conversation.id)
+    
+    messages = conversation.messages.all()
+    # Marquer les messages non lus comme lus
+    conversation.messages.filter(lu=False).exclude(expediteur=request.user).update(lu=True)
+    
+    # Récupérer l'autre participant
+    autre_participant = conversation.participants.exclude(id=request.user.id).first()
+    
+    return render(request, 'messagerie/conversation.html', {
+        'conversation': conversation,
+        'messages': messages,
+        'autre_participant': autre_participant
+    })
+
+@login_required
+def demarrer_conversation(request, user_id):
+    autre_utilisateur = get_object_or_404(User, id=user_id)
+    
+    # Vérifier si une conversation existe déjà entre ces utilisateurs
+    conversation = Conversation.objects.filter(participants=request.user).filter(participants=autre_utilisateur).first()
+    
+    if not conversation:
+        # Créer une nouvelle conversation
+        conversation = Conversation.objects.create()
+        conversation.participants.add(request.user, autre_utilisateur)
+    
+    return redirect('conversation_detail', conversation_id=conversation.id)
+
+@login_required
+def supprimer_conversation(request, conversation_id):
+    conversation = get_object_or_404(Conversation, id=conversation_id, participants=request.user)
+    if request.method == 'POST':
+        conversation.delete()
+        return redirect('liste_conversations')
+    return redirect('conversation_detail', conversation_id=conversation.id)
 
 @login_required
 @user_passes_test(is_admin)  

@@ -1,0 +1,98 @@
+classDiagram
+    class User {
+        +id: IntegerField
+        +username: CharField
+        +email: EmailField
+        +password: CharField
+        +date_joined: DateTimeField
+        +is_active: BooleanField
+        +is_staff: BooleanField
+    }
+
+    class Profile {
+        +user: OneToOneField(User)
+        +role: CharField (choices)
+        +bio: TextField
+        +location: CharField
+        +phone_number: CharField
+        +is_vendeur_confirmed: BooleanField
+    }
+
+    User "1" -- "1" Profile
+
+    class CategorieProduit {
+        +id: IntegerField
+        +nom: CharField
+        +description: TextField
+    }
+
+    class Produit {
+        +id: IntegerField
+        +vendeur: ForeignKey(User)
+        +categorie: ForeignKey(CategorieProduit)
+        +nom: CharField
+        +description: TextField
+        +prix: DecimalField
+        +quantite: IntegerField
+        +date_creation: DateTimeField
+        +est_disponible: BooleanField
+    }
+
+    User "1" -- "*" Produit : vend
+    CategorieProduit "1" -- "*" Produit : contient
+
+    class Commande {
+        +id: IntegerField
+        +acheteur: ForeignKey(User)
+        +date_commande: DateTimeField
+        +statut: CharField (choices)
+        +montant_total: DecimalField
+        +adresse_livraison: TextField
+    }
+
+    User "1" -- "*" Commande : passe
+
+    class LigneDeCommande {
+        +id: IntegerField
+        +commande: ForeignKey(Commande)
+        +produit: ForeignKey(Produit)
+        +quantite: IntegerField
+        +prix_unitaire: DecimalField
+    }
+
+    Commande "1" -- "*" LigneDeCommande : contient
+    Produit "1" -- "*" LigneDeCommande : est_dans
+
+    class Avis {
+        +id: IntegerField
+        +produit: ForeignKey(Produit)
+        +auteur: ForeignKey(User)
+        +note: IntegerField
+        +commentaire: TextField
+        +date_creation: DateTimeField
+    }
+
+    User "1" -- "*" Avis : écrit
+    Produit "1" -- "*" Avis : a
+
+    class Conversation {
+        +id: IntegerField
+        +participants: ManyToManyField(User)
+        +date_creation: DateTimeField
+        +date_modification: DateTimeField
+    }
+
+    class Message {
+        +id: IntegerField
+        +conversation: ForeignKey(Conversation)
+        +expediteur: ForeignKey(User)
+        +destinataire: ForeignKey(User)
+        +contenu: TextField
+        +date_envoi: DateTimeField
+        +lu: BooleanField
+    }
+
+    User "*" -- "*" Conversation : participe
+    Conversation "1" -- "*" Message : contient
+    User "1" -- "*" Message : envoie
+    User "1" -- "*" Message : reçoit

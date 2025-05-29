@@ -23,4 +23,12 @@ urlpatterns = [
     path('admin/confirmer-vendeur/<int:user_id>/', views.confirmer_vendeur, name='confirmer_vendeur'),
     path('vendeur/<int:vendeur_id>/contacter/', views.contacter_vendeur, name='contacter_vendeur'),
     
+    # URLs pour la messagerie
+    path('messagerie/', views.liste_conversations, name='liste_conversations'),
+    path('messagerie/nouveau/<int:user_id>/', views.demarrer_conversation, name='demarrer_conversation'),
+    path('messagerie/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
+    path('messagerie/<int:conversation_id>/supprimer/', views.supprimer_conversation, name='supprimer_conversation'),
+    
+    # URL pour la page de formation
+    path('formation/', views.formation, name='formation'),
 ]
